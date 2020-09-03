@@ -104,7 +104,7 @@ function pickLocation(location) {
 }
 
 function netError() {
-  vscode.window.showErrorMessage('取消了调用API');
+  // vscode.window.showErrorMessage('取消了调用API');
 }
 
 exports.activate = activate

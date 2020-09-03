@@ -1,17 +1,22 @@
 {
   "name": "weather",
   "displayName": "weather",
-  "description": "",
-  "version": "0.0.1",
+  "description": "天气小插件，支持全球城市",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.48.0"
   },
+  "publisher": "chendm",
   "categories": [
     "Other"
   ],
   "activationEvents": [
     "*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:chendonming/weather.git"
+  },
   "main": "./extension.js",
   "contributes": {
     "commands": [
