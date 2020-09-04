@@ -1,5 +1,6 @@
 const axios = require('axios');
-
+const vscode = require('vscode')
+const key = vscode.workspace.getConfiguration().get('weather.key')
 module.exports = {
   /**
    * 获取地理位置
@@ -11,7 +12,7 @@ module.exports = {
       method: 'get',
       params: {
         location,
-        key: '579fbf44a7b24519a9d50e35258c1467'
+        key
       }
     })
   },
@@ -24,7 +25,7 @@ module.exports = {
       method: 'get',
       params: {
         location,
-        key: '579fbf44a7b24519a9d50e35258c1467'
+        key
       }
     })
   },
@@ -37,7 +38,7 @@ module.exports = {
       method: 'get',
       params: {
         location,
-        key: '579fbf44a7b24519a9d50e35258c1467'
+        key
       }
     })
   }
