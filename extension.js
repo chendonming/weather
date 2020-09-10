@@ -2,14 +2,15 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode')
 const weather = require('./weather');
+const AutoUpdate = vscode.workspace.getConfiguration().get('weather.autoUpdate')
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-let bar, barNext;
+let bar, barNext, barRight, barNextRight;
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  let disposable = vscode.commands.registerCommand('extension.weather', async function () {
+  let disposable = vscode.commands.registerCommand('extension.weather', async function (position=1) {
     let locationId = context.globalState.get('locationId')
     let location = context.globalState.get('location')
     if (!locationId || !location) {
@@ -19,7 +20,7 @@ function activate(context) {
     if (locationId) {
       const now = await getNowWeather(locationId)
       bar ? bar.dispose() : ''
-      bar = vscode.window.createStatusBarItem(1)
+      bar = vscode.window.createStatusBarItem(position)
       bar.text = location.split('-')[0] + ' ' + now.text + ' ' + now.temp + '℃'
       bar.tooltip = '当前实况'
       bar.command = 'extension.replacecity'
@@ -27,8 +28,8 @@ function activate(context) {
 
       const nextDay = await getForecast(locationId)
       barNext ? barNext.dispose() : ''
-      barNext = vscode.window.createStatusBarItem(1)
-      barNext.text = `${nextDay.tempMin}℃~${nextDay.tempMax}℃ ${nextDay.textDay} ${nextDay.textNight}`
+      barNext = vscode.window.createStatusBarItem(position)
+      barNext.text = `${nextDay.tempMin}℃~${nextDay.tempMax}℃ ${nextDay.textDay}/${nextDay.textNight}`
       barNext.tooltip = `明日预报: 最低温度${nextDay.tempMin}℃ 最高温度${nextDay.tempMax}℃ 白天${nextDay.textDay}, 晚上${nextDay.textNight}`
       barNext.show()
 
@@ -38,7 +39,7 @@ function activate(context) {
   })
 
   context.subscriptions.push(disposable)
-
+  // 更换城市
   let replacecity = vscode.commands.registerCommand('extension.replacecity', async function () {
     const location = await vscode.window.showInputBox({ placeHolder: '输入城市名( 中国/全球 )' })
     const locationId = await pickLocation(location)
@@ -48,10 +49,29 @@ function activate(context) {
       vscode.commands.executeCommand('extension.weather')
     }
   })
-
   context.subscriptions.push(replacecity)
 
+  /**
+   * 添加城市
+   * @param {number} 位置 left=1 right=2
+   */
+  let addCity = vscode.commands.registerCommand('extension.addCity', async function(position=2) {
+    const location = await vscode.window.showInputBox({ placeHolder: '输入城市名( 中国/全球 )' })
+    const locationId = await pickLocation(location);
+    if(location && locationId) {
+      context.globalState.update('locationIdRight', locationId)
+      context.globalState.update('locationRight', location.split('-')[0])
+      vscode.commands.executeCommand('extension.weather', position)
+    }
+  });
+
   vscode.commands.executeCommand('extension.weather')
+
+  if(AutoUpdate) {
+    setInterval(function() {
+      vscode.commands.executeCommand('extension.weather')
+    }, 1000 * 60 * 60 * 2)
+  }
 }
 
 function getNowWeather(locationId) {

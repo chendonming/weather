@@ -2,7 +2,7 @@
   "name": "weather",
   "displayName": "weather",
   "description": "天气小插件，支持全球城市",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "engines": {
     "vscode": "^1.48.0"
   },
@@ -13,6 +13,7 @@
   "activationEvents": [
     "*"
   ],
+  "icon": "images/logo.png",
   "repository": {
     "type": "git",
     "url": "git@github.com:chendonming/weather.git"
@@ -36,7 +37,12 @@
           "weather.key": {
             "type": "string",
             "default": "579fbf44a7b24519a9d50e35258c1467",
-            "description": "输入您的和风天气key密钥享受更多API调用次数"
+            "description": "输入您的和风天气key密钥享受更多API调用次数, 天气插件是全局插件因此改动后需要重启"
+          },
+          "weather.autoUpdate": {
+            "type": "boolean",
+            "default": false,
+            "description": "开启后每隔两小时自动更新下天气, 天气插件是全局插件因此改动后需要重启"
           }
         }
       }
