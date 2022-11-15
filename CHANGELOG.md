@@ -1,9 +1,9 @@
-# Change Log
+# log
+- 1.1.0
+> 新增生活指数
 
-All notable changes to the "weather" extension will be documented in this file.
+- 1.0.2
+> 增加自己的key
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+- 1.0.4
+> 增加配置自动更新天气

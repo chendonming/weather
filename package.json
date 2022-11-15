@@ -2,7 +2,7 @@
   "name": "weather",
   "displayName": "weather",
   "description": "天气小插件，支持全球城市",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "engines": {
     "vscode": "^1.48.0"
   },
