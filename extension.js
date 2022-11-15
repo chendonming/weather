@@ -1,16 +1,16 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-const vscode = require('vscode')
+const vscode = require('vscode');
 const weather = require('./weather');
 const AutoUpdate = vscode.workspace.getConfiguration().get('weather.autoUpdate')
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-let bar, barNext, barRight, barNextRight;
+let bar, barNext, barLife;
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  let disposable = vscode.commands.registerCommand('extension.weather', async function (position=1) {
+  let disposable = vscode.commands.registerCommand('extension.weather', async function (position = 1) {
     let locationId = context.globalState.get('locationId')
     let location = context.globalState.get('location')
     if (!locationId || !location) {
@@ -33,12 +33,23 @@ function activate(context) {
       barNext.tooltip = `明日预报: 最低温度${nextDay.tempMin}℃ 最高温度${nextDay.tempMax}℃ 白天${nextDay.textDay}, 晚上${nextDay.textNight}`
       barNext.show()
 
+      const lifeIndex = await getLifeIndex(locationId)
+      barLife ? barLife.dispose() : ''
+      barLife = vscode.window.createStatusBarItem(position)
+      barLife.text = `生活指数:${lifeIndex.category}`
+      barLife.tooltip = `生活指数等级: ${lifeIndex.level} ${lifeIndex.text || ''}`
+      barLife.command = {
+        title: 'open',
+        command: 'vscode.open',
+        arguments: [vscode.Uri.parse(lifeIndex.fxLink)]
+      }
+      barLife.show()
+
       context.globalState.update('locationId', locationId)
       context.globalState.update('location', location.split('-')[0])
     }
   })
 
-  context.subscriptions.push(disposable)
   // 更换城市
   let replacecity = vscode.commands.registerCommand('extension.replacecity', async function () {
     const location = await vscode.window.showInputBox({ placeHolder: '输入城市名( 中国/全球 )' })
@@ -49,16 +60,15 @@ function activate(context) {
       vscode.commands.executeCommand('extension.weather')
     }
   })
-  context.subscriptions.push(replacecity)
 
   /**
    * 添加城市
    * @param {number} 位置 left=1 right=2
    */
-  let addCity = vscode.commands.registerCommand('extension.addCity', async function(position=2) {
+  let addCity = vscode.commands.registerCommand('extension.addCity', async function (position = 2) {
     const location = await vscode.window.showInputBox({ placeHolder: '输入城市名( 中国/全球 )' })
     const locationId = await pickLocation(location);
-    if(location && locationId) {
+    if (location && locationId) {
       context.globalState.update('locationIdRight', locationId)
       context.globalState.update('locationRight', location.split('-')[0])
       vscode.commands.executeCommand('extension.weather', position)
@@ -67,11 +77,13 @@ function activate(context) {
 
   vscode.commands.executeCommand('extension.weather')
 
-  if(AutoUpdate) {
-    setInterval(function() {
+  if (AutoUpdate) {
+    setInterval(function () {
       vscode.commands.executeCommand('extension.weather')
     }, 1000 * 60 * 60 * 2)
   }
+
+  context.subscriptions.push(replacecity, disposable, addCity)
 }
 
 function getNowWeather(locationId) {
@@ -106,6 +118,24 @@ function getForecast(locationId) {
   })
 }
 
+
+function getLifeIndex(locationId) {
+  return new Promise(async (resolve) => {
+    const index = await weather.getIndices(locationId)
+    if (index.data.code === '200') {
+      const res = index.data.daily[0]
+      resolve({
+        desc: res.text,
+        category: res.category,
+        level: res.level,
+        fxLink: index.data.fxLink
+      })
+    } else {
+      netError()
+    }
+  })
+}
+
 function pickLocation(location) {
   return new Promise(async (resolve) => {
     const result = await weather.getLocation(location);
@@ -124,7 +154,7 @@ function pickLocation(location) {
 }
 
 function netError() {
-  // vscode.window.showErrorMessage('取消了调用API');
+  vscode.window.showErrorMessage('Weather: 请求错误');
 }
 
 exports.activate = activate

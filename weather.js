@@ -41,5 +41,20 @@ module.exports = {
         key
       }
     })
+  },
+  /**
+   * 生活指数
+   */
+  getIndices(location) {
+    return axios({
+      url: 'https://devapi.qweather.com/v7/indices/1d',
+      method: 'get',
+      params: {
+        location,
+        key,
+        type: '8',
+        lang: 'zh'
+      }
+    })
   }
 }
