@@ -4,6 +4,7 @@ const vscode = require('vscode');
 const weather = require('./weather');
 const AutoUpdate = vscode.workspace.getConfiguration().get('weather.autoUpdate')
 const ShowLifeIndex = vscode.workspace.getConfiguration().get('weather.showLifeIndex')
+const barPosition = vscode.workspace.getConfiguration().get('weather.position') == "left" ? vscode.StatusBarAlignment.Left : vscode.StatusBarAlignment.Right
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 let bar, barNext, barLife;
@@ -11,7 +12,7 @@ let bar, barNext, barLife;
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  let disposable = vscode.commands.registerCommand('extension.weather', async function (position = 1) {
+  let disposable = vscode.commands.registerCommand('extension.weather', async function (position = barPosition) {
     let locationId = context.globalState.get('locationId')
     let location = context.globalState.get('location')
     if (!locationId || !location) {

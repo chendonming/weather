@@ -39,6 +39,15 @@
             "default": "579fbf44a7b24519a9d50e35258c1467",
             "description": "输入您的和风天气key密钥享受更多API调用次数, 天气插件是全局插件因此改动后需要重启"
           },
+          "weather.position": {
+            "type": "string",
+            "default": "left",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "description": "改变插件的显示位置, 天气插件是全局插件因此改动后需要重启"
+          },
           "weather.autoUpdate": {
             "type": "boolean",
             "default": true,
