@@ -3,6 +3,7 @@
 const vscode = require('vscode');
 const weather = require('./weather');
 const AutoUpdate = vscode.workspace.getConfiguration().get('weather.autoUpdate')
+const ShowLifeIndex = vscode.workspace.getConfiguration().get('weather.showLifeIndex')
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 let bar, barNext, barLife;
@@ -33,17 +34,19 @@ function activate(context) {
       barNext.tooltip = `明日预报: 最低温度${nextDay.tempMin}℃ 最高温度${nextDay.tempMax}℃ 白天${nextDay.textDay}, 晚上${nextDay.textNight}`
       barNext.show()
 
-      const lifeIndex = await getLifeIndex(locationId)
-      barLife ? barLife.dispose() : ''
-      barLife = vscode.window.createStatusBarItem(position)
-      barLife.text = `生活指数:${lifeIndex.category}`
-      barLife.tooltip = `生活指数等级: ${lifeIndex.level} ${lifeIndex.text || ''}`
-      barLife.command = {
-        title: 'open',
-        command: 'vscode.open',
-        arguments: [vscode.Uri.parse(lifeIndex.fxLink)]
+      if (ShowLifeIndex) {
+        const lifeIndex = await getLifeIndex(locationId)
+        barLife ? barLife.dispose() : ''
+        barLife = vscode.window.createStatusBarItem(position)
+        barLife.text = `生活指数:${lifeIndex.category}`
+        barLife.tooltip = `生活指数等级: ${lifeIndex.level} ${lifeIndex.text || ''}`
+        barLife.command = {
+          title: 'open',
+          command: 'vscode.open',
+          arguments: [vscode.Uri.parse(lifeIndex.fxLink)]
+        }
+        barLife.show()
       }
-      barLife.show()
 
       context.globalState.update('locationId', locationId)
       context.globalState.update('location', location.split('-')[0])

@@ -43,6 +43,11 @@
             "type": "boolean",
             "default": true,
             "description": "开启后每隔两小时自动更新下天气, 天气插件是全局插件因此改动后需要重启"
+          },
+          "weather.showLifeIndex": {
+            "type": "boolean",
+            "default": true,
+            "description": "开启后显示生活指数, 天气插件是全局插件因此改动后需要重启"
           }
         }
       }
