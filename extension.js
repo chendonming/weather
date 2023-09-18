@@ -57,6 +57,9 @@ function activate(context) {
   // 更换城市
   let replacecity = vscode.commands.registerCommand('extension.replacecity', async function () {
     const location = await vscode.window.showInputBox({ placeHolder: '输入城市名( 中国/全球 )' })
+    if (location === undefined) {
+        return
+    }
     const locationId = await pickLocation(location)
     if (location && locationId) {
       context.globalState.update('locationId', locationId)
