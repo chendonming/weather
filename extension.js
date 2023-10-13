@@ -3,6 +3,8 @@
 const vscode = require('vscode');
 const weather = require('./weather');
 const AutoUpdate = vscode.workspace.getConfiguration().get('weather.autoUpdate')
+const ShowLifeIndex = vscode.workspace.getConfiguration().get('weather.showLifeIndex')
+const barPosition = vscode.workspace.getConfiguration().get('weather.position') == "left" ? vscode.StatusBarAlignment.Left : vscode.StatusBarAlignment.Right
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 let bar, barNext, barLife;
@@ -10,7 +12,7 @@ let bar, barNext, barLife;
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  let disposable = vscode.commands.registerCommand('extension.weather', async function (position = 1) {
+  let disposable = vscode.commands.registerCommand('extension.weather', async function (position = barPosition) {
     let locationId = context.globalState.get('locationId')
     let location = context.globalState.get('location')
     if (!locationId || !location) {
@@ -33,17 +35,19 @@ function activate(context) {
       barNext.tooltip = `明日预报: 最低温度${nextDay.tempMin}℃ 最高温度${nextDay.tempMax}℃ 白天${nextDay.textDay}, 晚上${nextDay.textNight}`
       barNext.show()
 
-      const lifeIndex = await getLifeIndex(locationId)
-      barLife ? barLife.dispose() : ''
-      barLife = vscode.window.createStatusBarItem(position)
-      barLife.text = `生活指数:${lifeIndex.category}`
-      barLife.tooltip = `生活指数等级: ${lifeIndex.level} ${lifeIndex.text || ''}`
-      barLife.command = {
-        title: 'open',
-        command: 'vscode.open',
-        arguments: [vscode.Uri.parse(lifeIndex.fxLink)]
+      if (ShowLifeIndex) {
+        const lifeIndex = await getLifeIndex(locationId)
+        barLife ? barLife.dispose() : ''
+        barLife = vscode.window.createStatusBarItem(position)
+        barLife.text = `生活指数:${lifeIndex.category}`
+        barLife.tooltip = `生活指数等级: ${lifeIndex.level} ${lifeIndex.text || ''}`
+        barLife.command = {
+          title: 'open',
+          command: 'vscode.open',
+          arguments: [vscode.Uri.parse(lifeIndex.fxLink)]
+        }
+        barLife.show()
       }
-      barLife.show()
 
       context.globalState.update('locationId', locationId)
       context.globalState.update('location', location.split('-')[0])
@@ -53,6 +57,9 @@ function activate(context) {
   // 更换城市
   let replacecity = vscode.commands.registerCommand('extension.replacecity', async function () {
     const location = await vscode.window.showInputBox({ placeHolder: '输入城市名( 中国/全球 )' })
+    if (location === undefined) {
+        return
+    }
     const locationId = await pickLocation(location)
     if (location && locationId) {
       context.globalState.update('locationId', locationId)
